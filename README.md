@@ -228,6 +228,28 @@ const credential = await navigator.credentials.get({
 });
 ```
 
+A payment can also be authenticated in the same manner as [SPC](https://github.com/rsolomakhin/secure-payment-confirmation#authenticating-a-payment). Internally the possession credential can be used, which will determine what UI is presented to the customer:
+
+```typescript
+const securePaymentConfirmationRequest = {
+  action: 'authenticate',
+  credentialIds: Uint8Array.from(credentialId, (c) => c.charCodeAt(0)),
+  networkData,
+  timeout,
+  fallbackUrl: "https://fallback.example/url"
+};
+
+const request = new PaymentRequest(
+  [{supportedMethods: 'secure-payment-confirmation',
+    data: securePaymentConfirmationRequest
+  }],
+  {total: {label: 'total', amount: {currency: 'USD', value: '20.00'}}});
+const response = await request.show();
+await response.complete('success');
+
+// Merchant validates |response.challenge| and sends |response| to the issuer for authentication.
+```
+
 ## Existing Proposals & Standards
 
 There are a few existing industry proposals or standards that have been evaluated to assess their applicability to this proposal:
